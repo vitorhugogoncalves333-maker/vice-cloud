@@ -1,0 +1,10 @@
+ "use client";
+import { FormEvent,useState } from "react";
+import Link from "next/link";
+import { supabase } from "../../lib/supabase";
+import { ArrowLeft,UserPlus } from "lucide-react";
+export default function CadastroPage(){
+ const [name,setName]=useState("");const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [message,setMessage]=useState("");const [busy,setBusy]=useState(false);
+ async function submit(e:FormEvent){e.preventDefault();setMessage("");if(!supabase){setMessage("Falta configurar o Supabase na Vercel. Veja o guia SUPABASE-VERCEL.md.");return;}setBusy(true);const {data,error}=await supabase.auth.signUp({email,password,options:{data:{full_name:name}}});setBusy(false);if(error){setMessage(error.message);return;}if(data.session)window.location.href="/conta";else setMessage("Cadastro iniciado! Confira seu e-mail para confirmar a conta e depois faça login.");}
+ return <main className="auth-page"><Link className="back" href="/"><ArrowLeft size={16}/> Voltar ao site</Link><section className="auth-card"><div className="auth-brand">V<span>ICE</span> CLOUD</div><div className="auth-kicker">CRIE SEU ACESSO</div><h1>ENTRE PARA O<br/><em>JOGO.</em></h1><p>Crie sua conta VICE CLOUD.</p><form onSubmit={submit}><label>NOME</label><input required value={name} onChange={e=>setName(e.target.value)} placeholder="Seu nome"/><label>E-MAIL</label><input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="voce@email.com"/><label>SENHA</label><input type="password" required minLength={6} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres"/><button disabled={busy}>{busy?"CRIANDO...":"CRIAR CONTA"} <UserPlus size={17}/></button></form>{message&&<div className="auth-message">{message}</div>}<div className="auth-switch">Já tem conta? <Link href="/login">Fazer login</Link></div></section></main>;
+}
